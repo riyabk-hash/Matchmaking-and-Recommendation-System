@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Preferences - Thrift Store</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h1>Tell us about your style</h1>
+            <p>Help us personalize your experience</p>
+
+            <div class="questionnaire-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+                <div class="step-indicator">Step 1 of 3</div>
+
+                <form id="preferencesForm">
+                    <div class="question-step active" id="step1">
+                        <div class="question-card">
+                            <h3>What categories interest you?</h3>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="clothing" name="categories[]" value="clothing">
+                                    <label for="clothing">Clothing</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="shoes" name="categories[]" value="shoes">
+                                    <label for="shoes">Shoes</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="accessories" name="categories[]" value="accessories">
+                                    <label for="accessories">Accessories</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="home" name="categories[]" value="home">
+                                    <label for="home">Home & Garden</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="electronics" name="categories[]" value="electronics">
+                                    <label for="electronics">Electronics</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="books" name="categories[]" value="books">
+                                    <label for="books">Books</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question-step" id="step2">
+                        <div class="question-card">
+                            <h3>What's your price range?</h3>
+                            <div class="form-group">
+                                <label for="minPrice">Minimum Price (Rs.)</label>
+                                <input type="number" id="minPrice" name="price_range_min" value="0" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="maxPrice">Maximum Price (Rs.)</label>
+                                <input type="number" id="maxPrice" name="price_range_max" value="100" min="0" step="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question-step" id="step3">
+                        <div class="question-card">
+                            <h3 id="styleQuestionTitle">What's your style preference?</h3>
+                            <div class="radio-group" id="clothingStyles" style="display: none;">
+                                <div class="radio-item">
+                                    <input type="radio" id="vintage" name="style_preference" value="vintage">
+                                    <label for="vintage">Vintage</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="modern" name="style_preference" value="modern">
+                                    <label for="modern">Modern</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="casual" name="style_preference" value="casual">
+                                    <label for="casual">Casual</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="formal" name="style_preference" value="formal">
+                                    <label for="formal">Formal</label>
+                                </div>
+                            </div>
+                            <div class="radio-group" id="shoesStyles" style="display: none;">
+                                <div class="radio-item">
+                                    <input type="radio" id="sneakers" name="style_preference" value="sneakers">
+                                    <label for="sneakers">Sneakers</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="boots" name="style_preference" value="boots">
+                                    <label for="boots">Boots</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="heels" name="style_preference" value="heels">
+                                    <label for="heels">Heels</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="sandals" name="style_preference" value="sandals">
+                                    <label for="sandals">Sandals</label>
+                                </div>
+                            </div>
+                            <div class="radio-group" id="accessoriesStyles" style="display: none;">
+                                <div class="radio-item">
+                                    <input type="radio" id="jewelry" name="style_preference" value="jewelry">
+                                    <label for="jewelry">Jewelry</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="bags" name="style_preference" value="bags">
+                                    <label for="bags">Bags</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="hats" name="style_preference" value="hats">
+                                    <label for="hats">Hats</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="watches" name="style_preference" value="watches">
+                                    <label for="watches">Watches</label>
+                                </div>
+                            </div>
+                            <div class="radio-group" id="homeStyles" style="display: none;">
+                                <div class="radio-item">
+                                    <input type="radio" id="rustic" name="style_preference" value="rustic">
+                                    <label for="rustic">Rustic</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="contemporary" name="style_preference" value="contemporary">
+                                    <label for="contemporary">Contemporary</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="minimalist" name="style_preference" value="minimalist">
+                                    <label for="minimalist">Minimalist</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="traditional" name="style_preference" value="traditional">
+                                    <label for="traditional">Traditional</label>
+                                </div>
+                            </div>
+                            <div class="radio-group" id="electronicsStyles" style="display: none;">
+                                <div class="radio-item">
+                                    <input type="radio" id="gadgets" name="style_preference" value="gadgets">
+                                    <label for="gadgets">Gadgets</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="audio" name="style_preference" value="audio">
+                                    <label for="audio">Audio</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="computing" name="style_preference" value="computing">
+                                    <label for="computing">Computing</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="gaming" name="style_preference" value="gaming">
+                                    <label for="gaming">Gaming</label>
+                                </div>
+                            </div>
+                            <div class="radio-group" id="booksStyles" style="display: none;">
+                                <div class="radio-item">
+                                    <input type="radio" id="fiction" name="style_preference" value="fiction">
+                                    <label for="fiction">Fiction</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="nonfiction" name="style_preference" value="nonfiction">
+                                    <label for="nonfiction">Non-fiction</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="biographies" name="style_preference" value="biographies">
+                                    <label for="biographies">Biographies</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="textbooks" name="style_preference" value="textbooks">
+                                    <label for="textbooks">Textbooks</label>
+                                </div>
+                            </div>
+                            <div class="radio-group" id="defaultStyles" style="display: grid;">
+                                <div class="radio-item">
+                                    <input type="radio" id="generalVintage" name="style_preference" value="vintage">
+                                    <label for="generalVintage">Vintage</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="generalModern" name="style_preference" value="modern">
+                                    <label for="generalModern">Modern</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="generalCasual" name="style_preference" value="casual">
+                                    <label for="generalCasual">Casual</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="generalFormal" name="style_preference" value="formal">
+                                    <label for="generalFormal">Formal</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" id="prevBtn"
+                            style="display: none;">Previous</button>
+                        <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">Complete
+                            Setup</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.querySelector('.step-indicator').textContent = `Step ${currentStep} of ${totalSteps}`;
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.question-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            prevBtn.style.display = step > 1 ? 'block' : 'none';
+            nextBtn.style.display = step < totalSteps ? 'block' : 'none';
+            submitBtn.style.display = step === totalSteps ? 'block' : 'none';
+
+            updateProgress();
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showStep(currentStep);
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
+        });
+
+        function updateDynamicSteps() {
+            const selectedCategories = Array.from(document.querySelectorAll('input[name="categories[]"]:checked')).map(cb => cb.value);
+
+            // Update Step 2: Price range based on categories (prioritize first selected)
+            const minPriceInput = document.getElementById('minPrice');
+            const maxPriceInput = document.getElementById('maxPrice');
+
+            const priceRanges = {
+                'electronics': [50, 500],
+                'home': [20, 200],
+                'books': [5, 50],
+                'shoes': [10, 150],
+                'accessories': [5, 100],
+                'clothing': [10, 100]
+            };
+
+            let minPrice = 0;
+            let maxPrice = 100;
+
+            for (const category of selectedCategories) {
+                if (priceRanges[category]) {
+                    [minPrice, maxPrice] = priceRanges[category];
+                    break; // Use the first matching category
+                }
+            }
+
+            minPriceInput.value = minPrice;
+            maxPriceInput.value = maxPrice;
+
+            // Update Step 3: Style preferences based on categories (prioritize first selected)
+            const styleGroups = {
+                'clothing': { id: 'clothingStyles', title: "What's your fashion style preference?" },
+                'shoes': { id: 'shoesStyles', title: "What type of shoes do you prefer?" },
+                'accessories': { id: 'accessoriesStyles', title: "What type of accessories do you like?" },
+                'home': { id: 'homeStyles', title: "What's your home decor style preference?" },
+                'electronics': { id: 'electronicsStyles', title: "What type of electronics interest you?" },
+                'books': { id: 'booksStyles', title: "What type of books do you enjoy?" }
+            };
+
+            const styleTitle = document.getElementById('styleQuestionTitle');
+
+            // Hide all style groups first
+            document.querySelectorAll('.radio-group[id$="Styles"]').forEach(group => {
+                group.style.display = 'none';
+            });
+
+            let selectedStyleGroup = null;
+            for (const category of selectedCategories) {
+                if (styleGroups[category]) {
+                    selectedStyleGroup = styleGroups[category];
+                    break; // Use the first matching category
+                }
+            }
+
+            if (selectedStyleGroup) {
+                document.getElementById(selectedStyleGroup.id).style.display = 'grid';
+                styleTitle.textContent = selectedStyleGroup.title;
+            } else {
+                document.getElementById('defaultStyles').style.display = 'grid';
+                styleTitle.textContent = "What's your style preference?";
+            }
+        }
+
+        // Initialize dynamic steps on page load
+        updateDynamicSteps();
+
+        // Add event listeners to category checkboxes
+        document.querySelectorAll('input[name="categories[]"]').forEach(checkbox => {
+            checkbox.addEventListener('change', updateDynamicSteps);
+        });
+
+        document.getElementById('preferencesForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            const preferences = {
+                preferred_categories: formData.getAll('categories[]'),
+                price_range_min: parseFloat(formData.get('price_range_min')) || 0,
+                price_range_max: parseFloat(formData.get('price_range_max')) || 10000,
+                preferred_location: '', // Can be added later
+                style_preference: formData.get('style_preference') || '',
+                size_preference: '' // Can be added later
+            };
+
+            fetch('backend/update_preferences.php', {
+                method: 'POST',
+                body: JSON.stringify(preferences),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = 'home.html';
+                    } else {
+                        alert(data.message);
+                    }
+                });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome - Thrift Store</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+        background-color: #f7d5d5;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .welcome-card {
+        background: #fff;
+        padding: 60px 40px;
+        border-radius: 12px;
+        width: 450px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+    
+    .welcome-card h1 {
+        font-size: 32px;
+        margin-bottom: 15px;
+        color: #111;
+    }
+    
+    .welcome-card p {
+        color: #777;
+        margin-bottom: 30px;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    
+    .btn-continue {
+        display: inline-block;
+        padding: 14px 40px;
+        border: none;
+        border-radius: 8px;
+        background: #FF8DAA;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .btn-continue:hover {
+        background: #ff7a94;
+    }
+    
+    .checkmark {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: #4CAF50;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    
+    .checkmark i {
+        color: white;
+        font-size: 40px;
+    }
+</style>
+</head>
+<body>
+
+<div class="welcome-card">
+    <div class="checkmark">
+        <i class="fas fa-check"></i>
+    </div>
+    <h1>Welcome!</h1>
+    <p>Your account has been created and your preferences have been saved. You're all set to start shopping on Thrift Store!</p>
+    <a href="home.html" class="btn-continue">Continue to Home</a>
+</div>
+
+<script>
+    // Auto-redirect to home after 5 seconds if user doesn't click
+    setTimeout(function() {
+        window.location.href = 'home.html';
+    }, 5000);
+</script>
+
+</body>
+</html>
+

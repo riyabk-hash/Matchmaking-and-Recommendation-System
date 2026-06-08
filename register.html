@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Thrift Store</title>
+</head>
+
+<body style="margin:0;padding:0;font-family:'Inter',sans-serif;background-color:#f7d5d5;color:#333;">
+
+    <div class="login-container"
+        style="display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;">
+        <div class="login-card"
+            style="background:#fff;padding:50px 40px;border-radius:12px;width:450px;box-shadow:0 8px 25px rgba(0,0,0,0.08);text-align:center;transition:transform 0.2s;">
+            <h1 style="font-size:28px;margin-bottom:10px;color:#111;">Join Thrift Store</h1>
+            <p style="color:#777;margin-bottom:30px;font-size:15px;">Create your account</p>
+
+            <form id="registerForm">
+                <div class="form-group" style="display:flex;flex-direction:column;margin-bottom:15px;text-align:left;">
+                    <label for="regUsername" style="font-weight:600;margin-bottom:6px;color:#000000;">Username</label>
+                    <input type="text" id="regUsername" name="username" required
+                        style="padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;width:100%;box-sizing:border-box;transition:all 0.2s;">
+                </div>
+
+                <div class="form-group" style="display:flex;flex-direction:column;margin-bottom:15px;text-align:left;">
+                    <label for="regEmail" style="font-weight:600;margin-bottom:6px;color:#050404;">Email</label>
+                    <input type="email" id="regEmail" name="email" required
+                        style="padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;width:100%;box-sizing:border-box;transition:all 0.2s;">
+                </div>
+
+                <div class="form-group" style="display:flex;flex-direction:column;margin-bottom:15px;text-align:left;">
+                    <label for="regPassword" style="font-weight:600;margin-bottom:6px;color:#000000;">Password</label>
+                    <input type="password" id="regPassword" name="password" required
+                        style="padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;width:100%;box-sizing:border-box;transition:all 0.2s;">
+                </div>
+
+                <div class="form-group" style="display:flex;flex-direction:column;margin-bottom:15px;text-align:left;">
+                    <label for="regFullName" style="font-weight:600;margin-bottom:6px;color:#131212;">Full Name</label>
+                    <input type="text" id="regFullName" name="full_name"
+                        style="padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;width:100%;box-sizing:border-box;transition:all 0.2s;">
+                </div>
+
+                <div class="form-group" style="display:flex;flex-direction:column;margin-bottom:15px;text-align:left;">
+                    <label for="regPhone" style="font-weight:600;margin-bottom:6px;color:#141111;">Phone</label>
+                    <input type="tel" id="regPhone" name="phone"
+                        style="padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;width:100%;box-sizing:border-box;transition:all 0.2s;">
+                </div>
+
+                <div class="form-group" style="display:flex;flex-direction:column;margin-bottom:15px;text-align:left;">
+                    <div class="form-group"
+                        style="display:flex;flex-direction:column;margin-bottom:15px;text-align:left;">
+                        <label for="regAddress" style="font-weight:600;margin-bottom:6px;color:#000000;">Location (Pick
+                            from Map)</label>
+                        <div style="position:relative;">
+                            <input type="text" id="regAddress" name="address"
+                                placeholder="Search for your city or area..." required
+                                style="padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;width:100%;box-sizing:border-box;transition:all 0.2s;">
+                            <div id="geocoder-results"
+                                style="position:absolute; top:100%; left:0; right:0; background:white; z-index:1000; border:1px solid #ddd; border-top:none; border-radius:0 0 8px 8px; display:none; max-height:200px; overflow-y:auto; box-shadow:0 10px 20px rgba(0,0,0,0.1);">
+                            </div>
+                        </div>
+
+                        <div id="map"
+                            style="height: 250px; width: 100%; margin-top: 10px; border-radius: 8px; border:1px solid #ddd; display: none;">
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:#666;">Detected Country</label>
+                                <input type="text" id="country" name="country" readonly placeholder="Automatic"
+                                    style="padding:8px;border:1px solid #eee;border-radius:6px;font-size:13px;width:100%;box-sizing:border-box;background:#f9f9f9;color:#555;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:#666;">Detected City</label>
+                                <input type="text" id="city" name="city" readonly placeholder="Automatic"
+                                    style="padding:8px;border:1px solid #eee;border-radius:6px;font-size:13px;width:100%;box-sizing:border-box;background:#f9f9f9;color:#555;">
+                            </div>
+                        </div>
+                        <input type="hidden" id="latitude" name="latitude">
+                        <input type="hidden" id="longitude" name="longitude">
+                    </div>
+
+                    <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+                    <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+                    <script>
+                        let map, marker;
+                        const addressInput = document.getElementById('regAddress');
+                        const resultsDiv = document.getElementById('geocoder-results');
+                        let searchTimeout;
+
+                        addressInput.addEventListener('input', () => {
+                            clearTimeout(searchTimeout);
+                            const query = addressInput.value.trim();
+                            if (query.length < 3) {
+                                resultsDiv.style.display = 'none';
+                                return;
+                            }
+
+                            searchTimeout = setTimeout(() => {
+                                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`)
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        resultsDiv.innerHTML = '';
+                                        if (data.length > 0) {
+                                            resultsDiv.style.display = 'block';
+                                            data.forEach(item => {
+                                                const div = document.createElement('div');
+                                                div.style.padding = '10px 15px';
+                                                div.style.cursor = 'pointer';
+                                                div.style.fontSize = '13px';
+                                                div.style.borderBottom = '1px solid #eee';
+                                                div.textContent = item.display_name;
+                                                div.onclick = () => selectLocation(item);
+                                                div.onmouseover = () => div.style.background = '#f8f9fa';
+                                                div.onmouseout = () => div.style.background = 'white';
+                                                resultsDiv.appendChild(div);
+                                            });
+                                        } else {
+                                            resultsDiv.style.display = 'none';
+                                        }
+                                    });
+                            }, 300);
+                        });
+
+                        function selectLocation(item) {
+                            const lat = parseFloat(item.lat);
+                            const lon = parseFloat(item.lon);
+
+                            addressInput.value = item.display_name;
+                            resultsDiv.style.display = 'none';
+                            document.getElementById('map').style.display = 'block';
+
+                            if (!map) {
+                                map = new maplibregl.Map({
+                                    container: 'map',
+                                    style: {
+                                        version: 8,
+                                        sources: {
+                                            'osm': {
+                                                type: 'raster',
+                                                tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                                                tileSize: 256,
+                                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                            }
+                                        },
+                                        layers: [{
+                                            id: 'osm',
+                                            type: 'raster',
+                                            source: 'osm',
+                                            minzoom: 0,
+                                            maxzoom: 19
+                                        }]
+                                    },
+                                    center: [lon, lat],
+                                    zoom: 14
+                                });
+
+                                marker = new maplibregl.Marker({ draggable: true })
+                                    .setLngLat([lon, lat])
+                                    .addTo(map);
+
+                                marker.on('dragend', () => {
+                                    const lngLat = marker.getLngLat();
+                                    updateReverseGeocode(lngLat.lat, lngLat.lng);
+                                });
+                            } else {
+                                map.flyTo({ center: [lon, lat], zoom: 14 });
+                                marker.setLngLat([lon, lat]);
+                            }
+
+                            updateFields(item);
+                        }
+
+                        function updateFields(item) {
+                            const addr = item.address || {};
+                            const city = addr.city || addr.town || addr.village || addr.suburb || '';
+                            const country = addr.country || '';
+
+                            document.getElementById('latitude').value = item.lat;
+                            document.getElementById('longitude').value = item.lon;
+                            document.getElementById('city').value = city;
+                            document.getElementById('country').value = country;
+                        }
+
+                        function updateReverseGeocode(lat, lon) {
+                            document.getElementById('latitude').value = lat;
+                            document.getElementById('longitude').value = lon;
+
+                            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.address) {
+                                        updateFields(data);
+                                        addressInput.value = data.display_name;
+                                    }
+                                });
+                        }
+                    </script>
+
+                    <div class="form-group"
+                        style="display:flex;flex-direction:column;margin-bottom:20px;text-align:left;">
+                        <label for="regMode" style="font-weight:600;margin-bottom:6px;color:#000000;">Account
+                            Mode</label>
+                        <select id="regMode" name="mode"
+                            style="padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;width:100%;box-sizing:border-box;transition:all 0.2s;">
+                            <option value="both">Both Buyer and Seller</option>
+                            <option value="customer">Buyer Only</option>
+                            <option value="seller">Seller Only</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-full"
+                        style="width:100%;padding:14px;border:none;border-radius:8px;background:#fca8bd;color:#533737;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                        Register
+                    </button>
+            </form>
+
+            <p style="text-align:center;margin-top:20px;color:#777;font-size:14px;">
+                Already have an account?
+                <a href="login.html" style="color:#FF8DAA;text-decoration:none;font-weight:600;">Login here</a>
+            </p>
+            <p style="text-align:center;color:#777;font-size:14px;">
+                <a href="preferences.html" style="color:#FF8DAA;text-decoration:none;font-weight:600;">Update
+                    Preferences</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Hover effect for the card
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            fetch('backend/register.php', {
+                method: 'POST',
+                body: JSON.stringify(Object.fromEntries(formData)),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect to preferences page after successful registration
+                        window.location.href = 'preferences.html';
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(err => { console.error(err); alert('Error: ' + err.message); });
+        });
+    </script>
+
+</body>
+
+</html>

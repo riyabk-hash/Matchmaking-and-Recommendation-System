@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products - Thrift Store</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="popup.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+<div id="sidebarMenu" class="sidebar">
+    <a href="javascript:void(0)" class="close-btn" onclick="toggleSidebar(false)">&times;</a>
+    
+    <!-- User Section -->
+    <div class="sidebar-section">
+        <h3 id="sidebarUserName">Account</h3>
+        <div id="sidebarLoggedInLinks" style="display: none;">
+            <a href="#" id="sidebarDashboardLink"><i class="fa-solid fa-circle-user"></i> My Dashboard</a>
+            <a href="preferences.html"><i class="fa-solid fa-gear"></i> Preferences</a>
+            <a href="#" onclick="logout()"><i class="fa-solid fa-sign-out-alt"></i> Logout</a>
+        </div>
+        <div id="sidebarLoggedOutLinks">
+            <a href="login.html"><i class="fa-solid fa-sign-in-alt"></i> Sign In</a>
+            <a href="register.html"><i class="fa-solid fa-user-plus"></i> Register</a>
+        </div>
+    </div>
+
+    <!-- Categories Section (Dropdown) -->
+    <div class="sidebar-section">
+        <button class="dropdown-btn" onclick="toggleCategoryDropdown()">
+            <i class="fa-solid fa-list"></i> Categories
+            <i class="fa-solid fa-caret-down" style="float: right; margin-top: 5px;"></i>
+        </button>
+        <div class="dropdown-container" id="categoryDropdown">
+            <a href="products.html?category=women">Women</a>
+            <a href="products.html?category=men">Men</a>
+            <a href="products.html?category=kids">Kids</a>
+            <a href="products.html?category=designer">Designer</a>
+            <a href="products.html?category=home_decor">Home Decor</a>
+            <a href="products.html?category=books">Books</a>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="sidebar-section">
+        <a href="about.html"><i class="fa-solid fa-info-circle"></i> About Us</a>
+    </div>
+</div>
+
+<div class="content">
+
+<!-- NAVBAR & NAVIGATION -->
+<nav class="navbar">
+    <div class="logo">
+        <a href="home.html" style="text-decoration:none; display:flex; align-items:center; gap:12px;">
+            <img src="nifty.png" alt="ThriftStore Logo" style="height:40px;">
+            <h4 style="margin:0; color:var(--text-main); font-size:20px;">ThriftStore</h4>
+        </a>
+    </div>
+
+    <div class="search-container">
+        <form id="searchForm" onsubmit="return false;" style="width:100%;">
+            <input type="text" id="searchInput" class="search-bar input" placeholder="Discover anything..." onkeypress="handleSearch(event)" style="width:100%; padding:10px 20px; border-radius:30px; border:1px solid var(--border); outline:none; background:var(--bg-primary);">
+        </form>
+    </div>
+
+    <div class="right" id="navRight">
+        <span id="userDisplay" style="font-size: 14px; color: var(--text-muted); font-weight: 600; cursor: pointer; margin-right: 15px;" onclick="toggleSidebar(true)"></span>
+        <a href="login.html" class="btn sign-in-btn" id="signInBtn" style="padding:8px 20px; font-size:14px; background:var(--text-main); color:#fff; border-radius:20px; text-decoration:none; margin-right:15px;">Sign In</a>
+        <i class="fa-solid fa-bars" style="cursor: pointer; font-size: 20px; color:var(--text-main);" onclick="toggleSidebar(true)"></i>
+    </div>
+</nav>
+
+<nav class="sec-nav">
+    <div class="s-left">
+        <a href="products.html?category=women">Women</a>
+        <a href="products.html?category=men">Men</a>
+        <a href="products.html?category=kids">Kids</a>
+        <a href="products.html?category=designer">Designer</a>
+        <a href="products.html?category=home_decor">Home Decor</a>
+        <a href="products.html?category=books">Books</a>
+    </div>
+    <div class="s-right">
+        <a href="upload.html" style="color:var(--accent); font-weight:700;"><i class="fa-solid fa-plus-circle"></i> Upload</a>
+    </div>
+</nav>
+
+
+<!-- CATEGORY HEADER -->
+<div class="category-header">
+    <h1 id="categoryTitle">All Products</h1>
+    <p id="categoryDesc">Browse our collection</p>
+</div>
+
+<!-- SIMILAR USERS SECTION (Hidden by default) -->
+<div class="container" id="similarUsersSection" style="display: none; margin-bottom: 20px;">
+    <h2 style="margin-bottom: 10px;">Users with similar taste</h2>
+    <div id="similarUsersList" style="display: flex; gap: 15px; overflow-x: auto; padding: 10px 0;">
+        <!-- Similar users will be appended here dynamically -->
+    </div>
+</div>
+
+<!-- PRODUCTS SECTION -->
+<div class="container" id="products">
+    <h2 id="pageTitle">Our Collection</h2>
+    <div id="productList" class="discovery-grid">
+        <!-- Products will be loaded here -->
+        <p style="text-align:center; grid-column:1/-1;">Loading discoveries...</p>
+    </div>
+</div>
+
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+    <div class="container">
+        <!-- Sign Up and Save -->
+        <div class="footer-col">
+            <h4>Sign Up & Save</h4>
+            <p>Subscribe to get special offers and updates</p>
+            <div class="subscribe">
+                <input type="email" placeholder="Enter your email" id="email">
+                <button type="submit">Subscribe</button>
+            </div>
+        </div>
+
+        <!-- Company Info -->
+        <div class="footer-col">
+            <h4>Company</h4>
+            <ul>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="services.html">Our Services</a></li>
+                <li><a href="privacy.html">Privacy Policy</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Support</h4>
+            <ul>
+                <li><a href="faq.html">FAQs</a></li>
+                <li><a href="terms.html">Terms of Service</a></li>
+                <li><a href="refund.html">Refund Policy</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+            </ul>
+        </div>
+
+        <!-- Social Media -->
+        <div class="footer-col">
+            <h4>Follow Us</h4>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<script>
+
+function handleSearch(e) {
+    if (e.key === 'Enter') {
+        const query = e.target.value.trim();
+        if (query) {
+            window.location.href = 'products.html?q=' + encodeURIComponent(query);
+        }
+        e.preventDefault();
+    }
+}
+
+// Get category from URL
+const urlParams = new URLSearchParams(window.location.search);
+let category = urlParams.get('category') || '';
+let searchQuery = urlParams.get('q') || '';
+if (searchQuery) {
+    document.getElementById('categoryTitle').textContent = 'Search: "' + decodeURIComponent(searchQuery) + '"';
+    document.getElementById('categoryDesc').textContent = 'Results ranked by your preferences';
+    category = ''; // No category filter for search
+} else {
+    const categoryTitles = {
+        'all': 'All Products',
+        'women': "Women's Collection",
+        'women_shoes': "Women's Shoes",
+        'women_joggers': "Women's Joggers",
+        'women_tshirts': "Women's T-Shirts",
+        'women_dress': "Women's Dresses",
+        'men': "Men's Collection",
+        'designer': "Designer & Luxury",
+        'men_shoes': "Men's Shoes",
+        'men_hoodies': "Men's Hoodies",
+        'men_tshirts': "Men's T-Shirts",
+        'kids': "Kids Collection",
+        'kids_shoes': "Kids Shoes",
+        'kids_shirts': "Kids Shirts",
+        'kids_bags': "Kids Bags",
+        'home_decor': 'Home Decor',
+        'lamps': 'Lamps',
+        'furniture': 'Furniture',
+        'walldecor': 'Wall Decor',
+        'shoes': 'All Shoes',
+        'tshirts': 'All T-Shirts',
+        'joggers': 'All Joggers',
+        'dress': 'All Dresses',
+        'hoodies': 'All Hoodies',
+        'bags': 'All Bags'
+    };
+    document.getElementById('categoryTitle').textContent = categoryTitles[category] || category.replace('_', ' ').toUpperCase();
+}
+
+// Sidebar control
+function toggleSidebar(open) {
+    const sidebar = document.getElementById('sidebarMenu');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (open) {
+        sidebar.classList.add('open');
+        overlay.style.display = "block";
+    } else {
+        sidebar.classList.remove('open');
+        overlay.style.display = "none";
+    }
+}
+
+function toggleCategoryDropdown() {
+    const dropdown = document.getElementById('categoryDropdown');
+    const btn = event.currentTarget;
+    if (dropdown.style.display === "block") {
+        dropdown.style.display = "none";
+        btn.classList.remove('active');
+    } else {
+        dropdown.style.display = "block";
+        btn.classList.add('active');
+    }
+}
+
+// Check if user is logged in
+async function checkLoginStatus() {
+    try {
+        const response = await fetch('backend/get_user_preferences.php');
+        const data = await response.json();
+        
+        const signInBtn = document.getElementById('signInBtn');
+        const userDisplay = document.getElementById('userDisplay');
+        const sidebarUserName = document.getElementById('sidebarUserName');
+        const sidebarLoggedInLinks = document.getElementById('sidebarLoggedInLinks');
+        const sidebarLoggedOutLinks = document.getElementById('sidebarLoggedOutLinks');
+        
+        if (data.logged_in) {
+            signInBtn.style.display = 'none';
+            userDisplay.textContent = (data.email || data.username).split('@')[0];
+            sidebarUserName.textContent = "Hi, " + (data.email || data.username).split('@')[0];
+            sidebarLoggedInLinks.style.display = 'block';
+            sidebarLoggedOutLinks.style.display = 'none';
+            
+            const sidebarDashboardLink = document.getElementById('sidebarDashboardLink');
+            if (sidebarDashboardLink && data.user_id) {
+                sidebarDashboardLink.href = 'curator_profile.html?id=' + data.user_id;
+            }
+            
+            // Fetch similar users when logged in and on the homepage without search/category filters
+            if (!searchQuery && !category) {
+                fetchSimilarUsers();
+            }
+        } else {
+            signInBtn.style.display = 'block';
+            userDisplay.textContent = '';
+            sidebarUserName.textContent = "Account";
+            sidebarLoggedInLinks.style.display = 'none';
+            sidebarLoggedOutLinks.style.display = 'block';
+            document.getElementById('similarUsersSection').style.display = 'none';
+        }
+    } catch (err) {
+        console.error('Error checking login status:', err);
+    }
+}
+
+// Fetch and display Users with Similar Taste
+async function fetchSimilarUsers() {
+    try {
+        const response = await fetch('backend/get_similar_users.php');
+        const data = await response.json();
+        
+        if (data.success && data.similar_users && data.similar_users.length > 0) {
+            document.getElementById('similarUsersSection').style.display = 'block';
+            const usersContainer = document.getElementById('similarUsersList');
+            usersContainer.innerHTML = '';
+            
+            data.similar_users.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.style.cssText = 'min-width: 150px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;';
+                
+                userCard.innerHTML = `
+                    <div style="width: 60px; height: 60px; background-color: #f1f1f1; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-user" style="font-size: 24px; color: #888;"></i>
+                    </div>
+                    <h4 style="margin: 0 0 5px;">${user.username}</h4>
+                    <p style="margin: 0; font-size: 0.9em; color: #666;"><i class="fa-solid fa-fire" style="color: #ff6b6b"></i> ${user.score}% Match</p>
+                    <a href="curator_profile.html?id=${user.id}" style="display: inline-block; margin-top: 10px; font-size: 0.85em; color: #black; text-decoration: underline;">View Profile</a>
+                `;
+                usersContainer.appendChild(userCard);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching similar users:', error);
+    }
+}
+
+// Toggle dropdown menu
+function toggleDropdown() {
+    const dropdown = document.getElementById('dropdownContent');
+    dropdown.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.user-menu-btn') && !event.target.closest('.user-menu-btn')) {
+        const dropdowns = document.getElementsByClassName('dropdown-content');
+        for (let i = 0; i < dropdowns.length; i++) {
+            dropdowns[i].classList.remove('show');
+        }
+    }
+}
+
+// Logout function
+async function logout() {
+    try {
+        const response = await fetch('backend/logout.php', {
+            method: 'POST'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = 'home.html';
+        }
+    } catch (err) {
+        console.error('Error logging out:', err);
+    }
+}
+
+// Load products based on category
+async function loadProducts() {
+    try {
+        let url;
+        const prefsResponse = await fetch('backend/get_user_preferences.php');
+        const prefsData = await prefsResponse.json();
+        
+        if (searchQuery) {
+            // Use advanced search
+            url = 'backend/search_products.php?q=' + encodeURIComponent(searchQuery);
+            document.getElementById('categoryDesc').textContent = prefsData.logged_in ? 'Results ranked by your preferences' : 'Search results';
+        } else if (prefsData.logged_in && category === '') {
+            // Home: personalized recommendations
+            url = 'backend/get_recommended_products.php';
+        } else {
+            // Category browsing
+            url = 'backend/get_products.php?category=' + category;
+        }
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success !== false) {
+            displayProducts(data.products || []);
+        } else {
+            throw new Error(data.error || 'Unknown server error');
+        }
+    } catch (err) {
+        console.error('Error loading products:', err);
+        document.getElementById('productList').innerHTML = `<p style="text-align:center;padding:20px;color:red;">Error loading products: ${err.message}</p>`;
+    }
+}
+
+function displayProducts(products) {
+    const list = document.getElementById('productList');
+    list.innerHTML = '';
+    
+    if (products.length === 0) {
+        list.innerHTML = '<p style="text-align:center; padding:40px; grid-column:1/-1; color:var(--text-muted);">No discoveries found matching your search. Try something else!</p>';
+        return;
+    }
+    
+    products.forEach(product => {
+        list.appendChild(createProductCard(product));
+    });
+    
+    setTimeout(applyGridSpans, 300);
+}
+
+function applyGridSpans() {
+    const cards = document.querySelectorAll('.product-card-wrapper');
+    cards.forEach(card => {
+        const productCard = card.querySelector('.product-card');
+        const height = productCard.getBoundingClientRect().height;
+        const rowSpan = Math.ceil((height + 20) / 10);
+        card.style.gridRowEnd = "span " + rowSpan;
+    });
+}
+
+function createProductCard(product) {
+    const link = document.createElement("a");
+    link.href = `product_detail.html?id=${product.id}`;
+    link.className = "product-card-wrapper";
+    
+    const card = document.createElement("div");
+    card.className = "product-card";
+    
+    let infoHtml = `
+        <div class="card-info">
+            <p style="margin:0; font-weight:700; color:var(--text-main); font-size:14px;">${product.title}</p>
+            <p style="margin:4px 0 0; color:var(--text-muted); font-size:13px;">Rs. ${product.price}</p>
+            ${product.match_score !== undefined ? `<p style="margin:4px 0 0; color:var(--text-main); font-weight:600; font-size:12px;"><i class="fa-solid fa-chart-line"></i> Overall Match: ${product.match_score}%</p>` : ''}
+            ${product.jaccard_score !== undefined ? `<p style="margin:2px 0 0; color:var(--accent); font-weight:600; font-size:12px;"><i class="fa-solid fa-tags"></i> Jaccard Similarity: ${product.jaccard_score}%${product.jaccard_breakdown && product.jaccard_breakdown.shared_tags && product.jaccard_breakdown.shared_tags.length ? ` (${product.jaccard_breakdown.shared_tags.join(', ')})` : ''}</p>` : ''}
+            <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; color:var(--text-muted);"><i class="fa-regular fa-heart"></i> ${product.likes_count || 0}</span>
+                <i class="fa-regular fa-bookmark" style="color:var(--text-muted); font-size:12px;"></i>
+            </div>
+    `;
+    
+    // Check if recommendations explainability data exists
+    if (product.match_score > 0 && product.match_reasons && product.match_reasons.length > 0) {
+        let factors = product.match_reasons.map(r => {
+            if (r === 'category match') return '✔️ Category match';
+            if (r === 'price fit') return '✔️ Price compatibility';
+            if (r === 'style match') return '✔️ Style match';
+            if (r === 'location match') return '✔️ Location relevance';
+            if (r === 'uploaded by similar user') return '✔️ Similar user influence';
+            return `✔️ ${r}`;
+        }).join('<br>');
+
+        infoHtml += `
+            <div class="match-badge" style="font-size: 0.8em; color: #555; margin-top: 8px; text-align: left; padding: 5px; background: #fdfdfd; border-radius: 4px; border: 1px solid #eee;" onclick="event.preventDefault();">
+                <div style="font-weight: bold; color: var(--text-main); margin-bottom: 3px;">${product.match_score}% Match</div>
+                <details>
+                    <summary style="cursor: pointer; color: #333;">Why this was recommended</summary>
+                    <div style="margin-top: 5px; color: #777; line-height: 1.4;">
+                        ${factors}
+                    </div>
+                </details>
+            </div>
+        `;
+    }
+    
+    infoHtml += `</div>`; // Close card-info
+    
+    card.innerHTML = `
+        <img src="${product.image_path}" onerror="this.src='uploads/placeholder.jpg'">
+        ${infoHtml}
+    `;
+    
+    link.appendChild(card);
+    return link;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadProducts();
+    checkLoginStatus();
+});</script>
+
+</body>
+</html>

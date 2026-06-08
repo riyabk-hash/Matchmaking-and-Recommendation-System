@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail - Thrift Store</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <style>
+        .product-detail-container {
+            display: flex;
+            gap: 50px;
+            padding: 50px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        .product-visuals {
+            flex: 1.2;
+            flex-basis: 600px;
+            max-width: 600px;
+            width: 100%;
+            position: sticky;
+            top: 100px;
+        }
+
+        .image-slider {
+            position: relative;
+            width: 100%;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            overflow: hidden;
+            border-radius: var(--radius);
+            background-color: var(--bg-primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .slider-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 1;
+        }
+
+        .slider-slide.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .slider-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            cursor: zoom-in;
+        }
+
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border);
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s;
+        }
+
+        .slider-dot.active {
+            background: var(--accent);
+            transform: scale(1.2);
+        }
+
+        .product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .product-price {
+            font-size: 32px;
+            color: var(--accent);
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .product-description {
+            line-height: 1.8;
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        .product-meta {
+            padding: 24px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+
+        .product-meta p {
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .product-meta i {
+            color: var(--accent);
+            width: 20px;
+        }
+
+        /* PREMIUM MATCH ANALYSIS CARD */
+        .match-analysis-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 245, 0.8));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(220, 220, 230, 0.7);
+            border-radius: var(--radius-sm);
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .match-analysis-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .match-analysis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .overall-match-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .overall-match-title i {
+            color: var(--accent);
+        }
+
+        .overall-match-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .match-progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .match-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #ff8a00);
+            border-radius: 5px;
+            transition: width 1s cubic-bezier(0.1, 0.8, 0.2, 1.0);
+        }
+
+        .match-breakdown-details {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .match-breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed rgba(200, 200, 210, 0.5);
+        }
+
+        .match-breakdown-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .match-breakdown-row.boost-applied {
+            background: rgba(46, 213, 115, 0.08);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(46, 213, 115, 0.2);
+        }
+
+        .match-breakdown-row.boost-applied i {
+            color: #2ed573;
+        }
+
+        .match-breakdown-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .match-breakdown-label i {
+            color: var(--text-muted);
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .match-breakdown-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .match-raw {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .match-contribution {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.04);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .match-breakdown-row.boost-applied .match-contribution {
+            color: #2ed573;
+            background: rgba(46, 213, 115, 0.12);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: none;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #fff;
+            border-color: var(--accent);
+        }
+
+        .contact-curator-btn {
+            width: 100%;
+            padding: 20px;
+            background: var(--text-main);
+            color: white;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .contact-curator-btn:hover {
+            background: #000;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1100px) {
+            .product-detail-container {
+                flex-direction: column;
+            }
+
+            .product-images {
+                max-width: 100%;
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- PREMIUM SIDEBAR -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+    <div id="sidebarMenu" class="sidebar">
+        <a href="javascript:void(0)" class="close-btn" onclick="toggleSidebar(false)">&times;</a>
+
+        <div class="sidebar-section">
+            <h3>Account</h3>
+            <div id="sidebarLoggedInLinks" style="display: none;">
+                <a href="#" id="sidebarDashboardLink"><i class="fa-solid fa-circle-user"></i> My Dashboard</a>
+                <a href="preferences.html"><i class="fa-solid fa-gear"></i> Preferences</a>
+                <a href="backend/view_my_preferences.php"><i class="fa-solid fa-eye"></i> See My Preferences</a>
+                <a href="#" onclick="logout()"><i class="fa-solid fa-sign-out-alt"></i> Logout</a>
+            </div>
+            <div id="sidebarLoggedOutLinks">
+                <a href="login.html"><i class="fa-solid fa-sign-in-alt"></i> Sign In</a>
+                <a href="register.html"><i class="fa-solid fa-user-plus"></i> Register</a>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h4>Discover Categories</h4>
+            <a href="products.html?category=women"><i class="fa-solid fa-venus"></i> Women</a>
+            <a href="products.html?category=men"><i class="fa-solid fa-mars"></i> Men</a>
+            <a href="products.html?category=kids"><i class="fa-solid fa-child"></i> Kids</a>
+            <a href="products.html?category=designer"><i class="fa-solid fa-gem"></i> Designer</a>
+            <a href="products.html?category=home_decor"><i class="fa-solid fa-house-chimney"></i> Home Decor</a>
+            <a href="products.html?category=books"><i class="fa-solid fa-book-open"></i> Books</a>
+        </div>
+
+        <div class="sidebar-section">
+            <h4>About</h4>
+            <a href="about.html"><i class="fa-solid fa-info-circle"></i> Our Story</a>
+            <a href="contact.html"><i class="fa-solid fa-envelope"></i> Contact Us</a>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <div class="logo">
+                <a href="home.html" style="text-decoration: none; display: flex; align-items: center; gap: 12px;">
+                    <img src="nifty.png" alt="ThriftStore Logo" style="height:48px;">
+                    <h4 style="margin: 0; color: var(--text-main);">Thriftic</h4>
+                </a>
+            </div>
+
+            <div class="search-container">
+                <form id="searchForm" style="margin: 0;">
+                    <input type="text" id="searchInput" name="q" placeholder="Explore unique finds..."
+                        onkeypress="handleSearch(event)">
+                </form>
+            </div>
+
+            <div class="right" id="navRight">
+                <span id="userDisplay"
+                    style="font-size: 14px; color: var(--text-main); font-weight: 600; cursor: pointer;"
+                    onclick="toggleSidebar(true)"></span>
+                <a href="login.html" class="sign-in-btn" id="signInBtn">Sign In</a>
+                <i class="fa-solid fa-bars" style="cursor: pointer; font-size: 22px; color: var(--text-main);"
+                    onclick="toggleSidebar(true)"></i>
+            </div>
+        </nav>
+
+        <!-- Secondary Navbar -->
+        <nav class="sec-nav">
+            <div class="s-left">
+                <a href="home.html">Home</a>
+                <a href="products.html?category=women">Women</a>
+                <a href="products.html?category=men">Men</a>
+                <a href="products.html?category=kids">Kids</a>
+                <a href="products.html?category=designer">Designer</a>
+            </div>
+
+            <div class="s-right">
+                <a href="upload.html" style="color: var(--accent); font-weight:700;"><i class="fa-solid fa-plus"></i>
+                    Upload</a>
+                <a href="offers.html">Offers</a>
+            </div>
+        </nav>
+
+        <div id="product"></div>
+
+        <!-- LIGHTBOX MODAL -->
+        <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+            <img src="" alt="Full Screen Discovery" id="lightboxImg" class="lightbox-img">
+        </div>
+
+        <!-- REPORT MODAL -->
+        <div class="report-modal-overlay" id="reportModalOverlay">
+            <div class="report-modal">
+                <h3>Report Discovery</h3>
+                <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Why are you reporting this
+                    product?</p>
+
+                <button class="report-option" onclick="submitReportReason('violence')">Violence or physical
+                    harm</button>
+                <button class="report-option" onclick="submitReportReason('nudity')">Nudity or sexual content</button>
+                <button class="report-option" onclick="submitReportReason('scam')">Scam or deceptive listing</button>
+                <button class="report-option" onclick="submitReportReason('fake_product')">Fake or counterfeit
+                    product</button>
+                <button class="report-option" onclick="submitReportReason('inappropriate')">Inappropriate
+                    content</button>
+
+                <button class="report-cancel" onclick="closeReportModal()">Cancel</button>
+            </div>
+        </div>
+
+        <script>
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get("id");
+
+            function toggleSidebar(open) {
+                const sidebar = document.getElementById('sidebarMenu');
+                const overlay = document.getElementById('sidebarOverlay');
+                if (open) {
+                    sidebar.classList.add('open');
+                    overlay.style.display = "block";
+                } else {
+                    sidebar.classList.remove('open');
+                    overlay.style.display = "none";
+                }
+            }
+
+            function handleSearch(e) {
+                if (e.key === 'Enter') {
+                    const query = e.target.value.trim();
+                    if (query) window.location.href = 'products.html?q=' + encodeURIComponent(query);
+                    e.preventDefault();
+                }
+            }
+
+            async function checkLoginStatus() {
+                try {
+                    const response = await fetch('backend/get_user_preferences.php');
+                    const data = await response.json();
+
+                    const signInBtn = document.getElementById('signInBtn');
+                    const userDisplay = document.getElementById('userDisplay');
+                    const sidebarLoggedInLinks = document.getElementById('sidebarLoggedInLinks');
+                    const sidebarLoggedOutLinks = document.getElementById('sidebarLoggedOutLinks');
+
+                    if (data.logged_in) {
+                        signInBtn.style.display = 'none';
+                        userDisplay.textContent = (data.email || data.username).split('@')[0];
+                        sidebarLoggedInLinks.style.display = 'block';
+                        sidebarLoggedOutLinks.style.display = 'none';
+
+                        // Store current user id globally for ownership checks
+                        window.currentUserId = data.user_id;
+
+                        const sidebarDashboardLink = document.getElementById('sidebarDashboardLink');
+                        if (sidebarDashboardLink && data.user_id) {
+                            sidebarDashboardLink.href = 'curator_profile.html?id=' + data.user_id;
+                        }
+                    } else {
+                        signInBtn.style.display = 'block';
+                        userDisplay.textContent = '';
+                        sidebarLoggedInLinks.style.display = 'none';
+                        sidebarLoggedOutLinks.style.display = 'block';
+                        window.currentUserId = null;
+                    }
+                } catch (err) { }
+            }
+
+            async function logout() {
+                const response = await fetch('backend/logout.php', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) window.location.href = 'home.html';
+            }
+
+            async function loadProduct() {
+                if (!id) return;
+                try {
+                    const res = await fetch('backend/get_product_detail.php?id=' + id);
+                    const data = await res.json();
+                    if (!data.success) return;
+
+                    const p = data.product;
+                    const productImages = data.images || [];
+                    let slidesHtml = '';
+                    let dotsHtml = '';
+
+                    if (productImages.length > 0) {
+                        productImages.forEach((img, i) => {
+                            slidesHtml += `<div class="slider-slide ${i === 0 ? 'active' : ''}"><img src="${img.image_path}" onclick="openLightbox('${img.image_path}')"></div>`;
+                            dotsHtml += `<div class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></div>`;
+                        });
+                    }
+
+                    const isLiked = data.is_liked;
+                    const isSaved = data.is_saved;
+                    const likeIcon = isLiked ? 'fa-solid' : 'fa-regular';
+                    const saveIcon = isSaved ? 'fa-solid' : 'fa-regular';
+
+                    const html = `
+            <div class="product-detail-container">
+                <div class="product-visuals">
+                    <div class="slider-container">${slidesHtml}</div>
+                    <div class="slider-dots">${dotsHtml}</div>
+                    <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:20px;"><i class="fa-solid fa-search-plus"></i> Tap image to view full screen</p>
+                </div>
+                
+                <div class="product-info">
+                    <h1 style="font-size:32px; font-weight:800; margin-bottom:10px;">${p.title}</h1>
+                    <p class="product-price">Rs. ${p.price}</p>
+
+                    <!-- PREMIUM MATCH ANALYSIS WIDGET -->
+                    ${data.recommendation_breakdown ? `
+                    <div class="match-analysis-card">
+                        <div class="match-analysis-header">
+                            <div class="overall-match-title">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Personalized Match Analysis
+                            </div>
+                            <div class="overall-match-value">${data.recommendation_breakdown.overall_score}% Match</div>
+                        </div>
+                        <div class="match-progress-bar-container">
+                            <div class="match-progress-bar" style="width: ${data.recommendation_breakdown.overall_score}%"></div>
+                        </div>
+                        
+                        <div class="match-breakdown-details">
+                            <!-- Category Row -->
+                            <div class="match-breakdown-row">
+                                <div class="match-breakdown-label">
+                                    <i class="fa-solid fa-tags"></i> Category Match (Jaccard)
+                                </div>
+                                <div class="match-breakdown-stats">
+                                    <span class="match-raw">${data.recommendation_breakdown.components.category.raw}% Match</span>
+                                    <span class="match-contribution">Contrib: +${data.recommendation_breakdown.components.category.weighted}%</span>
+                                </div>
+                                ${data.recommendation_breakdown.jaccard ? `<p style="margin:6px 0 0; font-size:11px; color:var(--text-muted);">|A ∩ B| / |A ∪ B| — shared: ${(data.recommendation_breakdown.jaccard.intersection || []).join(', ') || 'none'}</p>` : ''}
+                            </div>
+                            
+                            <!-- Location Row -->
+                            <div class="match-breakdown-row">
+                                <div class="match-breakdown-label">
+                                    <i class="fa-solid fa-location-dot"></i> Location Proximity ${data.recommendation_breakdown.distance_km !== null ? `(${data.recommendation_breakdown.distance_km} km)` : ''}
+                                </div>
+                                <div class="match-breakdown-stats">
+                                    <span class="match-raw">${data.recommendation_breakdown.components.location.raw}% Match</span>
+                                    <span class="match-contribution">Contrib: +${data.recommendation_breakdown.components.location.weighted}%</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Price Row -->
+                            <div class="match-breakdown-row">
+                                <div class="match-breakdown-label">
+                                    <i class="fa-solid fa-wallet"></i> Price Compatibility
+                                </div>
+                                <div class="match-breakdown-stats">
+                                    <span class="match-raw">${data.recommendation_breakdown.components.price.raw}% Match</span>
+                                    <span class="match-contribution">Contrib: +${data.recommendation_breakdown.components.price.weighted}%</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Style Row -->
+                            <div class="match-breakdown-row">
+                                <div class="match-breakdown-label">
+                                    <i class="fa-solid fa-shirt"></i> Style Alignment
+                                </div>
+                                <div class="match-breakdown-stats">
+                                    <span class="match-raw">${data.recommendation_breakdown.components.style.raw}% Match</span>
+                                    <span class="match-contribution">Contrib: +${data.recommendation_breakdown.components.style.weighted}%</span>
+                                </div>
+                            </div>
+
+                            <!-- Beta Curator Boost Row -->
+                            ${data.recommendation_breakdown.components.beta.applied ? `
+                            <div class="match-breakdown-row boost-applied">
+                                <div class="match-breakdown-label">
+                                    <i class="fa-solid fa-circle-check"></i> Curator Boost
+                                </div>
+                                <div class="match-breakdown-stats">
+                                    <span class="match-raw">+${data.recommendation_breakdown.components.beta.boost}%</span>
+                                    <span class="match-contribution">Boost Added</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="product-meta">
+                        <p><i class="fa-solid fa-location-dot"></i> ${p.city || p.location}, ${p.country || ''}</p>
+                        <p><i class="fa-solid fa-tag"></i> ${p.category.toUpperCase()}</p>
+                        <p><i class="fa-solid fa-star"></i> ${p.condition_enum.toUpperCase()} Condition</p>
+                    </div>
+
+                    <div class="product-description">
+                        <h3 style="font-size:18px; margin-bottom:12px; color:var(--text-main);">Curator's Story</h3>
+                        <p>${p.description || 'This unique piece carries its own history.'}</p>
+                        <p style="margin-top:10px; font-size:13px; color:var(--accent);">Style Heritage: ${p.style ? p.style.toUpperCase() : 'AUTHENTIC'}</p>
+                    </div>
+
+                    <div class="curator-section" style="margin-top:30px; padding:20px; background:var(--bg-primary); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:space-between;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="width:40px; height:40px; background:var(--accent); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">
+                                ${p.seller_name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <p style="margin:0; font-size:12px; color:var(--text-muted); font-weight:600;">Discovery by</p>
+                                <p style="margin:0; font-weight:800; color:var(--text-main);">${p.seller_name}</p>
+                            </div>
+                        </div>
+                        <a href="curator_profile.html?id=${p.seller_id}" style="font-size:13px; font-weight:700; color:var(--accent); text-decoration:none; display:flex; align-items:center; gap:6px;">
+                            View Dashboard <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="action-buttons" style="margin-top:30px;">
+                        <button class="btn ${isLiked ? 'btn-primary' : 'btn-secondary'}" onclick="toggleInteraction('like')">
+                            <i class="${likeIcon} fa-heart"></i> ${p.likes_count || 0}
+                        </button>
+                        <button class="btn ${isSaved ? 'btn-primary' : 'btn-secondary'}" onclick="toggleInteraction('save')">
+                            <i class="${saveIcon} fa-bookmark"></i> ${isSaved ? 'Saved' : 'Save'}
+                        </button>
+                        <button id="editBtn" class="btn btn-primary" style="display:none;" onclick="window.location.href='edit_product.html?id=${p.id}'">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
+                        <button id="deleteBtn" class="btn" style="display:none; background:#dc3545; color:#fff; border-color:#dc3545;" onclick="deleteProduct()">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
+
+                    <button class="contact-curator-btn" onclick="window.location.href='https://mail.google.com/mail/?view=cm&fs=1&to=${p.seller_email}'">
+                        <i class="fa-solid fa-paper-plane"></i> Contact Curator
+                    </button>
+
+                    <div style="text-align:center; margin-top:24px;">
+                        <button onclick="openReportModal()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px;">
+                            <i class="fa-solid fa-flag"></i> Report this discovery
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+                    document.getElementById('product').innerHTML = html;
+                    window.currentSlide = 0;
+
+                    // Show edit/delete buttons only if the logged-in user is the owner
+                    if (window.currentUserId && window.currentUserId == p.seller_id) {
+                        const editBtn = document.getElementById('editBtn');
+                        const deleteBtn = document.getElementById('deleteBtn');
+                        if (editBtn) editBtn.style.display = 'inline-block';
+                        if (deleteBtn) deleteBtn.style.display = 'inline-block';
+                    }
+                } catch (err) { }
+            }
+
+            async function toggleInteraction(type) {
+                if (type === 'report') { openReportModal(); return; }
+                const res = await fetch('backend/toggle_interaction.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, product_id: id })
+                });
+                const data = await res.json();
+                if (data.success) loadProduct();
+                else if (data.message === 'User not logged in') window.location.href = 'login.html';
+            }
+
+            async function deleteProduct() {
+                if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return;
+                const res = await fetch('backend/delete_product.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: id })
+                });
+                const text = await res.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('Delete response:', text);
+                    alert('Server error while deleting.');
+                    return;
+                }
+                if (data.success) {
+                    const dashboardUrl = window.currentUserId
+                        ? 'curator_profile.html?id=' + window.currentUserId
+                        : 'home.html';
+                    window.location.href = dashboardUrl;
+                } else {
+                    alert('Failed to delete: ' + (data.message || 'Unknown error'));
+                }
+            }
+
+            function openLightbox(src) {
+                document.getElementById('lightboxImg').src = src;
+                document.getElementById('lightboxOverlay').classList.add('active');
+            }
+            function closeLightbox() { document.getElementById('lightboxOverlay').classList.remove('active'); }
+            function openReportModal() { document.getElementById('reportModalOverlay').classList.add('active'); }
+            function closeReportModal() { document.getElementById('reportModalOverlay').classList.remove('active'); }
+
+            async function submitReportReason(reason) {
+                const res = await fetch('backend/toggle_interaction.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'report', product_id: id, reason })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Consensus recorded. Our safety team will review this discovery.');
+                    closeReportModal();
+                }
+            }
+
+            function goToSlide(n) {
+                const slides = document.querySelectorAll('.slider-slide');
+                const dots = document.querySelectorAll('.slider-dot');
+                slides.forEach((s, i) => s.classList.toggle('active', i === n));
+                dots.forEach((d, i) => d.classList.toggle('active', i === n));
+                window.currentSlide = n;
+            }
+
+            document.addEventListener('DOMContentLoaded', () => { loadProduct(); checkLoginStatus(); });
+        </script>
+</body>
+</html>

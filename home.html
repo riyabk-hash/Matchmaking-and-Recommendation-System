@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thrift Store - Home</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="popup.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+    <div id="sidebarMenu" class="sidebar">
+        <a href="javascript:void(0)" class="close-btn" onclick="toggleSidebar(false)">&times;</a>
+
+        <!-- User Section -->
+        <div class="sidebar-section">
+            <h3 id="sidebarUserName">Account</h3>
+            <div id="sidebarLoggedInLinks" style="display: none;">
+                <a href="#" id="sidebarDashboardLink"><i class="fa-solid fa-circle-user"></i> My Dashboard</a>
+                <a href="preferences.html"><i class="fa-solid fa-gear"></i> Preferences</a>
+                <a href="backend/view_my_preferences.php"><i class="fa-solid fa-eye"></i> See My Preferences</a>
+                <a href="#" onclick="logout()"><i class="fa-solid fa-sign-out-alt"></i> Logout</a>
+            </div>
+            <div id="sidebarLoggedOutLinks">
+                <a href="login.html"><i class="fa-solid fa-sign-in-alt"></i> Sign In</a>
+                <a href="register.html"><i class="fa-solid fa-user-plus"></i> Register</a>
+            </div>
+        </div>
+
+        <!-- Categories Section (Dropdown) -->
+        <div class="sidebar-section">
+            <button class="dropdown-btn" onclick="toggleCategoryDropdown()">
+                <i class="fa-solid fa-list"></i> Categories
+                <i class="fa-solid fa-caret-down" style="float: right; margin-top: 5px;"></i>
+            </button>
+            <div class="dropdown-container" id="categoryDropdown">
+                <a href="products.html?category=women">Women</a>
+                <a href="products.html?category=men">Men</a>
+                <a href="products.html?category=kids">Kids</a>
+                <a href="products.html?category=designer">Designer</a>
+                <a href="products.html?category=home_decor">Home Decor</a>
+                <a href="products.html?category=books">Books</a>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="sidebar-section">
+            <a href="about.html"><i class="fa-solid fa-info-circle"></i> About Us</a>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- NAVBAR & NAVIGATION -->
+        <nav class="navbar">
+            <div class="logo">
+                <a href="home.html" style="text-decoration:none; display:flex; align-items:center; gap:12px;">
+                    <img src="nifty.png" alt="ThriftStore Logo" style="height:40px;">
+                    <h4 style="margin:0; color:var(--text-main); font-size:20px;">ThriftStore</h4>
+                </a>
+            </div>
+
+            <div class="search-container">
+                <form id="searchForm" onsubmit="return false;" style="width:100%;">
+                    <input type="text" id="searchInput" class="search-bar input" placeholder="Discover anything..."
+                        onkeypress="handleSearch(event)"
+                        style="width:100%; padding:10px 20px; border-radius:30px; border:1px solid var(--border); outline:none; background:var(--bg-primary);">
+                </form>
+            </div>
+
+            <div class="right" id="navRight">
+                <span id="userDisplay"
+                    style="font-size: 14px; color: var(--text-muted); font-weight: 600; cursor: pointer; margin-right: 15px;"
+                    onclick="toggleSidebar(true)"></span>
+                <a href="login.html" class="btn sign-in-btn" id="signInBtn"
+                    style="padding:8px 20px; font-size:14px; background:var(--text-main); color:#fff; border-radius:20px; text-decoration:none; margin-right:15px;">Sign
+                    In</a>
+                <i class="fa-solid fa-bars" style="cursor: pointer; font-size: 20px; color:var(--text-main);"
+                    onclick="toggleSidebar(true)"></i>
+            </div>
+        </nav>
+
+        <nav class="sec-nav">
+            <div class="s-left">
+                <a href="products.html?category=women">Women</a>
+                <a href="products.html?category=men">Men</a>
+                <a href="products.html?category=kids">Kids</a>
+                <a href="products.html?category=designer">Designer</a>
+                <a href="products.html?category=home_decor">Home Decor</a>
+                <a href="products.html?category=books">Books</a>
+            </div>
+            <div class="s-right">
+                <a href="upload.html" style="color:var(--accent); font-weight:700;"><i
+                        class="fa-solid fa-plus-circle"></i> Upload</a>
+            </div>
+        </nav>
+
+
+
+
+        <!-- HERO SECTION (DENSE DISCOVERY) -->
+        <div class="hero">
+            <div class="hero-left">
+                <img src="idk.jpg" alt="Thriftic Discovery">
+            </div>
+            <div class="hero-right">
+                <h2>Explore Style</h2>
+                <div class="category-cards">
+                    <a href="products.html?category=women" class="cat-card">
+                        <img src="women.jpg" alt="Women">
+                        <p>Women</p>
+                    </a>
+                    <a href="products.html?category=men" class="cat-card">
+                        <img src="men.jpg" alt="Men">
+                        <p>Men</p>
+                    </a>
+                    <a href="products.html?category=designer" class="cat-card">
+                        <img src="designer.jpg" alt="Designer" onerror="this.src='luxury.jpg'">
+                        <p>Designer</p>
+                    </a>
+                    <a href="products.html?category=home_decor" class="cat-card">
+                        <img src="home decor.png" alt="Home Decor">
+                        <p>Curated Home</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEED MODULES -->
+        <div class="container" id="recommendationSection" style="display: none;">
+            <h2>Recommended For You</h2>
+            <div id="recommendedProducts" class="discovery-grid"></div>
+        </div>
+
+        <div class="container">
+            <h2>Recently Uploaded</h2>
+            <div id="recentlyUploaded" class="discovery-grid"></div>
+        </div>
+
+        <div class="container">
+            <h2>Best of This Month</h2>
+            <div id="featuredProducts" class="discovery-grid"></div>
+        </div>
+
+
+
+        <!-- FOOTER -->
+
+        <footer class="footer">
+            <div class="container">
+                <!-- Sign Up and Save -->
+                <div class="footer-col">
+                    <h4>Sign Up & Save</h4>
+                    <p>Subscribe to get special offers and updates</p>
+                    <div class="subscribe">
+                        <input type="email" placeholder="Enter your email" id="email">
+                        <button type="submit">Subscribe</button>
+                    </div>
+                </div>
+
+                <!-- Company Info -->
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Our Services</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <!-- Support -->
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="faq.html">FAQs</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                        <li><a href="refund.html">Refund Policy</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Social Media -->
+                <div class="footer-col">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+
+        <script>
+
+            // Sidebar control
+            function toggleSidebar(open) {
+                const sidebar = document.getElementById('sidebarMenu');
+                const overlay = document.getElementById('sidebarOverlay');
+                if (open) {
+                    sidebar.classList.add('open');
+                    overlay.style.display = "block";
+                } else {
+                    sidebar.classList.remove('open');
+                    overlay.style.display = "none";
+                }
+            }
+
+            function toggleCategoryDropdown() {
+                const dropdown = document.getElementById('categoryDropdown');
+                const btn = event.currentTarget;
+                if (dropdown.style.display === "block") {
+                    dropdown.style.display = "none";
+                    btn.classList.remove('active');
+                } else {
+                    dropdown.style.display = "block";
+                    btn.classList.add('active');
+                }
+            }
+
+            // Check if user is logged in
+            async function checkLoginStatus() {
+                try {
+                    const response = await fetch('backend/get_user_preferences.php');
+                    const data = await response.json();
+
+                    const signInBtn = document.getElementById('signInBtn');
+                    const userDisplay = document.getElementById('userDisplay');
+                    const sidebarUserName = document.getElementById('sidebarUserName');
+                    const sidebarLoggedInLinks = document.getElementById('sidebarLoggedInLinks');
+                    const sidebarLoggedOutLinks = document.getElementById('sidebarLoggedOutLinks');
+
+                    if (data.logged_in) {
+                        signInBtn.style.display = 'none';
+                        userDisplay.textContent = (data.email || data.username).split('@')[0];
+                        sidebarUserName.textContent = "Hi, " + (data.email || data.username).split('@')[0];
+                        sidebarLoggedInLinks.style.display = 'block';
+                        sidebarLoggedOutLinks.style.display = 'none';
+
+                        const sidebarDashboardLink = document.getElementById('sidebarDashboardLink');
+                        if (sidebarDashboardLink && data.user_id) {
+                            sidebarDashboardLink.href = 'curator_profile.html?id=' + data.user_id;
+                        }
+                    } else {
+                        signInBtn.style.display = 'block';
+                        userDisplay.textContent = '';
+                        sidebarUserName.textContent = "Account";
+                        sidebarLoggedInLinks.style.display = 'none';
+                        sidebarLoggedOutLinks.style.display = 'block';
+                    }
+                } catch (err) {
+                    console.error('Error checking login status:', err);
+                }
+            }
+
+            // Toggle dropdown menu
+            function toggleDropdown() {
+                const dropdown = document.getElementById('dropdownContent');
+                dropdown.classList.toggle('show');
+            }
+
+            // Close dropdown when clicking outside
+            window.onclick = function (event) {
+                if (!event.target.matches('.user-menu-btn') && !event.target.closest('.user-menu-btn')) {
+                    const dropdowns = document.getElementsByClassName('dropdown-content');
+                    for (let i = 0; i < dropdowns.length; i++) {
+                        dropdowns[i].classList.remove('show');
+                    }
+                }
+            }
+
+            // Logout function
+            async function logout() {
+                try {
+                    const response = await fetch('backend/logout.php', {
+                        method: 'POST'
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        window.location.href = 'home.html';
+                    }
+                } catch (err) {
+                    console.error('Error logging out:', err);
+                }
+            }
+
+            // Load personalized recommendations based on user preferences
+            async function loadProducts() {
+                try {
+                    const prefsResponse = await fetch('backend/get_user_preferences.php');
+                    const prefsData = await prefsResponse.json();
+
+                    let recommendedItems = [];
+                    let allItems = [];
+
+                    const recSection = document.getElementById('recommendationSection');
+
+                    // Always fetch all products for featured items
+                    const allRes = await fetch('backend/get_all_products.php');
+                    const allData = await allRes.json();
+                    allItems = allData.products || [];
+
+                    if (prefsData.logged_in && prefsData.preferences) {
+                        recSection.style.display = 'block'; // Show recommendation module
+                        const response = await fetch('backend/get_recommended_products.php');
+                        const data = await response.json();
+                        recommendedItems = data.products || [];
+                    } else {
+                        recSection.style.display = 'none'; // Hide if logged out
+                    }
+
+                    displayProducts(recommendedItems, allItems);
+                } catch (err) {
+                    console.error('Error loading products:', err);
+                    try {
+                        const allRes = await fetch('backend/get_all_products.php');
+                        const allData = await allRes.json();
+                        displayProducts([], allData.products || []);
+                    } catch (e) {
+                        document.getElementById('featuredProducts').innerHTML = '<p style="text-align:center;padding:20px;">No products available</p>';
+                    }
+                }
+            }
+
+
+            function displayProducts(recommendedItems, allItems) {
+                const recommended = document.getElementById("recommendedProducts");
+                const featured = document.getElementById("featuredProducts");
+                const recent = document.getElementById("recentlyUploaded");
+
+                if (recommended) recommended.innerHTML = "";
+                featured.innerHTML = "";
+                if (recent) recent.innerHTML = "";
+
+                if (recommendedItems.length > 0) {
+                    recommendedItems.slice(0, 8).forEach(product => {
+                        if (recommended) recommended.appendChild(createProductCard(product));
+                    });
+                } else if (recommended) {
+                    recommended.innerHTML = '<p style="text-align:center;padding:20px;grid-column: 1 / -1; width:100%;">No recommendations found yet. Update preferences!</p>';
+                }
+
+                allItems.slice(0, 10).forEach(product => {
+                    if (recent) recent.appendChild(createProductCard(product));
+                });
+
+                allItems.slice(10, 18).forEach(product => {
+                    if (featured) featured.appendChild(createProductCard(product));
+                });
+            }
+
+            function createProductCard(product) {
+                const link = document.createElement("a");
+                link.href = `product_detail.html?id=${product.id}`;
+                link.className = "product-card-wrapper";
+
+                const card = document.createElement("div");
+                card.className = "product-card";
+
+                card.innerHTML = `
+        <img src="${product.image_path}" onerror="this.src='uploads/placeholder.jpg'">
+        <div class="card-info">
+            <p style="margin:0; font-weight:700; color:var(--text-main); font-size:14px;">${product.title}</p>
+            <p style="margin:4px 0 0; color:var(--text-muted); font-size:13px;">Rs. ${product.price}</p>
+            ${product.match_score !== undefined ? `<p style="margin:4px 0 0; color:var(--text-main); font-weight:600; font-size:12px;"><i class="fa-solid fa-chart-line"></i> Overall Match: ${product.match_score}%</p>` : ''}
+            ${product.jaccard_score !== undefined ? `<p style="margin:2px 0 0; color:var(--accent); font-weight:600; font-size:12px;"><i class="fa-solid fa-tags"></i> Jaccard Similarity: ${product.jaccard_score}%${product.jaccard_breakdown && product.jaccard_breakdown.shared_tags && product.jaccard_breakdown.shared_tags.length ? ` (${product.jaccard_breakdown.shared_tags.join(', ')})` : ''}</p>` : ''}
+            <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; color:var(--text-muted);"><i class="fa-regular fa-heart"></i> ${product.likes_count || 0}</span>
+                <i class="fa-regular fa-bookmark" style="color:var(--text-muted); font-size:12px;"></i>
+            </div>
+        </div>
+    `;
+
+                link.appendChild(card);
+                return link;
+            }
+
+            function handleSearch(e) {
+                if (e.key === 'Enter') {
+                    const query = e.target.value.trim();
+                    if (query) {
+                        window.location.href = 'products.html?q=' + encodeURIComponent(query);
+                    }
+                    e.preventDefault();
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                loadProducts();
+                checkLoginStatus();
+            });</script>
+
+</body>
+
+</html>

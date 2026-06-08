@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Preferences | Thriftic</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+    
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.95);
+            --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffeef3 100%);
+            min-height: 100vh;
+            font-family: 'Outfit', 'Inter', sans-serif;
+        }
+
+        .pref-wrapper {
+            padding: 80px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pref-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 48px;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 750px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .studio-tag {
+            background: var(--accent-light);
+            color: var(--accent);
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pref-card h1 {
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .pref-card p.subtitle {
+            color: var(--text-muted);
+            margin-bottom: 48px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i { color: var(--accent); }
+
+        /* CATEGORY GRID */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .category-tile {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .category-tile input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .tile-content {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 24px 16px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tile-content i {
+            font-size: 24px;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
+        .tile-content span {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        .category-tile input:checked + .tile-content {
+            border-color: var(--accent);
+            background: var(--bg-primary);
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(255, 141, 170, 0.15);
+        }
+
+        .category-tile input:checked + .tile-content i {
+            color: var(--accent);
+        }
+
+        /* GPS BOX */
+        .location-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 15px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .search-wrapper input:focus { border-color: var(--accent); }
+
+        #geocoder-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 1000;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 16px 16px;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .result-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .result-item:hover { background: var(--bg-primary); }
+
+        #prefMap {
+            height: 250px;
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* FORM CONTROLS */
+        .settings-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .form-group { margin-bottom: 0; }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: #fff;
+            font-family: inherit;
+            font-size: 15px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        /* BUTTONS */
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 48px;
+        }
+
+        .btn-premium {
+            background: var(--accent);
+            color: white;
+            padding: 20px;
+            border-radius: 100px;
+            border: none;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(255, 141, 170, 0.2);
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(255, 141, 170, 0.3);
+            background: #ff7aa0;
+        }
+
+        .btn-soft {
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 15px;
+            text-align: center;
+            text-decoration: none;
+            padding: 10px;
+        }
+
+        .btn-soft:hover { color: var(--text-main); }
+    </style>
+</head>
+
+<body>
+
+    <div class="pref-wrapper">
+        <div class="pref-card">
+            <span class="studio-tag">Thriftic Studio</span>
+            <h1>Curation Desk</h1>
+            <p class="subtitle">Tell us what discoveries move you. We'll fine-tune your neighborhood feed to match your heritage style.</p>
+
+            <form id="preferencesForm">
+                
+                <!-- CATEGORIES -->
+                <div class="section-title"><i class="fa-solid fa-sparkles"></i> Discovery Focus</div>
+                <div class="category-grid">
+                    <label class="category-tile">
+                        <input type="checkbox" name="categories" value="women">
+                        <div class="tile-content">
+                            <i class="fa-solid fa-venus"></i>
+                            <span>Women's</span>
+                        </div>
+                    </label>
+                    <label class="category-tile">
+                        <input type="checkbox" name="categories" value="men">
+                        <div class="tile-content">
+                            <i class="fa-solid fa-mars"></i>
+                            <span>Men's</span>
+                        </div>
+                    </label>
+                    <label class="category-tile">
+                        <input type="checkbox" name="categories" value="kids">
+                        <div class="tile-content">
+                            <i class="fa-solid fa-child"></i>
+                            <span>Children</span>
+                        </div>
+                    </label>
+                    <label class="category-tile">
+                        <input type="checkbox" name="categories" value="home_decor">
+                        <div class="tile-content">
+                            <i class="fa-solid fa-couch"></i>
+                            <span>Home Decor</span>
+                        </div>
+                    </label>
+                    <label class="category-tile">
+                        <input type="checkbox" name="categories" value="shoes">
+                        <div class="tile-content">
+                            <i class="fa-solid fa-shoe-prints"></i>
+                            <span>Footwear</span>
+                        </div>
+                    </label>
+                    <label class="category-tile">
+                        <input type="checkbox" name="categories" value="accessories">
+                        <div class="tile-content">
+                            <i class="fa-solid fa-gem"></i>
+                            <span>Accessories</span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- LOCATION (MAPLIBRE) -->
+                <div class="section-title"><i class="fa-solid fa-location-crosshairs"></i> Community Radius</div>
+                <div class="location-box">
+                    <div class="search-wrapper">
+                        <input type="text" id="prefLocation" name="location" placeholder="Where is your discovery zone?">
+                        <div id="geocoder-results"></div>
+                    </div>
+                    <div id="prefMap"></div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <div>
+                            <label style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:800; margin-bottom:6px; display:block;">Region</label>
+                            <input type="text" id="city" readonly placeholder="City" style="padding:10px; font-size:13px; background:#fcfcfc;">
+                        </div>
+                        <div>
+                            <label style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:800; margin-bottom:6px; display:block;">Territory</label>
+                            <input type="text" id="country" readonly placeholder="Country" style="padding:10px; font-size:13px; background:#fcfcfc;">
+                        </div>
+                    </div>
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                </div>
+
+                <!-- SETTINGS ROW -->
+                <div class="section-title"><i class="fa-solid fa-sliders"></i> Visual Heritage</div>
+                <div class="settings-row">
+                    <div class="form-group">
+                        <label>Target Budget (Rs.)</label>
+                        <input type="number" name="price_max" placeholder="Max Price" value="500">
+                    </div>
+                    <div class="form-group">
+                        <label>Style Persona</label>
+                        <select name="style_preference">
+                            <option value="">Any Character</option>
+                            <option value="vintage">Vintage Heritage</option>
+                            <option value="modern">Modern Minimal</option>
+                            <option value="street">Streetstyle</option>
+                            <option value="elegant">Elegant / Chic</option>
+                            <option value="bohemian">Bohemian</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn-premium">Fine-Tune My Feed</button>
+                    <a href="home.html" class="btn-soft">Skip Curation</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAPLIBRE LOGIC -->
+    <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+    <script>
+        let map, marker;
+        const addressInput = document.getElementById('prefLocation');
+        const resultsDiv = document.getElementById('geocoder-results');
+        let searchTimeout;
+
+        addressInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            const query = addressInput.value.trim();
+            if (query.length < 3) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`)
+                    .then(res => res.json())
+                    .then(data => {
+                        resultsDiv.innerHTML = '';
+                        if (data.length > 0) {
+                            resultsDiv.style.display = 'block';
+                            data.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = 'result-item';
+                                div.textContent = item.display_name;
+                                div.onclick = () => selectLocation(item);
+                                resultsDiv.appendChild(div);
+                            });
+                        } else {
+                            resultsDiv.style.display = 'none';
+                        }
+                    });
+            }, 300);
+        });
+
+        function selectLocation(item) {
+            const lat = parseFloat(item.lat);
+            const lon = parseFloat(item.lon);
+            addressInput.value = item.display_name;
+            resultsDiv.style.display = 'none';
+            document.getElementById('prefMap').style.display = 'block';
+
+            if (!map) {
+                map = new maplibregl.Map({
+                    container: 'prefMap',
+                    style: {
+                        version: 8,
+                        sources: { 'osm': { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256, attribution: '&copy; OSM contributors' } },
+                        layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
+                    },
+                    center: [lon, lat],
+                    zoom: 13
+                });
+                marker = new maplibregl.Marker({ draggable: true }).setLngLat([lon, lat]).addTo(map);
+                marker.on('dragend', () => {
+                    const ln = marker.getLngLat();
+                    updateReverseGeocode(ln.lat, ln.lng);
+                });
+            } else {
+                map.flyTo({ center: [lon, lat], zoom: 13 });
+                marker.setLngLat([lon, lat]);
+            }
+            updateFields(item);
+        }
+
+        function updateFields(item) {
+            const addr = item.address || {};
+            const city = addr.city || addr.town || addr.village || addr.suburb || '';
+            const country = addr.country || '';
+            document.getElementById('latitude').value = item.lat;
+            document.getElementById('longitude').value = item.lon;
+            document.getElementById('city').value = city;
+            document.getElementById('country').value = country;
+        }
+
+        function updateReverseGeocode(lat, lon) {
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lon;
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.address) {
+                        updateFields(data);
+                        addressInput.value = data.display_name;
+                    }
+                });
+        }
+
+        // SAVE LOGIC
+        const form = document.getElementById('preferencesForm');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const categories = [];
+            document.querySelectorAll('input[name="categories"]:checked').forEach(cb => categories.push(cb.value));
+
+            const formData = {
+                preferred_categories: categories,
+                price_range_min: 0,
+                price_range_max: parseFloat(document.querySelector('input[name="price_max"]').value) || 10000,
+                preferred_location: document.querySelector('input[name="location"]').value,
+                country: document.getElementById('country').value,
+                city: document.getElementById('city').value,
+                latitude: document.getElementById('latitude').value,
+                longitude: document.getElementById('longitude').value,
+                style_preference: document.querySelector('select[name="style_preference"]').value,
+                size_preference: "M" // Default for now
+            };
+
+            fetch('backend/update_preferences.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = 'home.html';
+                } else {
+                    alert(data.message);
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

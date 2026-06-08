@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Category</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+<nav class="navbar">
+<a href="home.html">← Back</a>
+</nav>
+
+<h2 id="title"></h2>
+
+<div id="products" class="card"></div>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+
+// Use 'category' parameter to match get_products.php expectation
+const category = params.get("category") || params.get("cat") || 'all';
+
+// Set title - format nicely (replace underscores with spaces)
+const titleDisplay = category.replace(/_/g, ' ').toUpperCase();
+document.getElementById("title").innerText = titleDisplay;
+
+
+async function loadCategory() {
+    try {
+        // Use the existing get_products.php endpoint instead of the missing get_products_by_category.php
+        const response = await fetch(`backend/get_products.php?category=${encodeURIComponent(category)}`);
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        const data = await response.json();
+        
+        const container = document.getElementById("products");
+        container.innerHTML = "";
+
+        if (!data.products || data.products.length === 0) {
+            container.innerHTML = '<p style="text-align:center;padding:20px;">No products found in this category</p>';
+            return;
+        }
+
+        data.products.forEach(p => {
+            container.innerHTML += `
+                <a href="product_detail.html?id=${p.id}">
+                    <div class="product-card">
+                        <img src="${p.image_path}" onerror="this.src='uploads/placeholder.jpg'">
+                        <p>${p.title}</p>
+                        <p>$${p.price}</p>
+                    </div>
+                </a>
+            `;
+        });
+    } catch (error) {
+        console.error('Error loading category products:', error);
+        const container = document.getElementById("products");
+        container.innerHTML = '<p style="text-align:center;padding:20px;">Error loading products</p>';
+    }
+}
+
+loadCategory();
+
+</script>
+
+</body>
+
+</html>

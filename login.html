@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Thrift Store</title>
+</head>
+<body style="margin:0;padding:0;font-family: 'Inter', sans-serif;background-color:#f5d0d0;color:#333;">
+
+<div class="login-container" style="display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;">
+    <div class="login-card" style="background:#fff;padding:50px 40px;border-radius:12px;width:400px;box-shadow:0 8px 25px rgba(0,0,0,0.08);text-align:center;transition:transform 0.2s;">
+        <h1 style="font-size:28px;margin-bottom:10px;color:#111;">Welcome Back</h1>
+        <p style="color:#777;margin-bottom:30px;font-size:15px;">Sign in to your account</p>
+
+        <form id="loginForm">
+            <div class="form-group" style="display:flex;flex-direction:column;margin-bottom:20px;text-align:left;">
+                <label for="loginUsername" style="font-weight:600;margin-bottom:6px;color:#777;">Username or Email</label>
+                <input type="text" id="loginUsername" name="username" required
+                    style="padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;transition:all 0.2s;width:100%;box-sizing:border-box;">
+            </div>
+            <div class="form-group" style="display:flex;flex-direction:column;margin-bottom:20px;text-align:left;">
+                <label for="loginPassword" style="font-weight:600;margin-bottom:6px;color:#777;">Password</label>
+                <input type="password" id="loginPassword" name="password" required
+                    style="padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:14px;transition:all 0.2s;width:100%;box-sizing:border-box;">
+            </div>
+            <button type="submit" class="btn-full"
+                style="width:100%;padding:14px;border:none;border-radius:8px;background:#FF8DAA;color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                Login
+            </button>
+        </form>
+
+        <p style="text-align:center;margin-top:20px;color:#777;font-size:14px;">
+            Don't have an account? 
+            <a href="register.html" style="color:#FF8DAA;text-decoration:none;font-weight:600;">Register here</a>
+        </p>
+        <p style="text-align:center;color:#777;font-size:14px;">
+            <a href="preferences.html" style="color:#FF8DAA;text-decoration:none;font-weight:600;">Update Preferences</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    const loginForm = document.getElementById('loginForm');
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+    
+    loginForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        
+        // Get form values
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        
+        if (!username || !password) {
+            alert('Please enter username and password');
+            return;
+        }
+        
+        // Disable button to prevent double click
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Logging in...';
+        
+        const formData = { username: username, password: password };
+        console.log('Sending login request:', formData);
+
+        fetch('backend/login.php',{
+            method:'POST',
+            body: JSON.stringify(formData),
+            headers:{'Content-Type':'application/json'}
+        })
+        .then(function(res) {
+            console.log('Response status:', res.status);
+            if (!res.ok) {
+                throw new Error('Server error: ' + res.status);
+            }
+            return res.json();
+        })
+        .then(function(data) {
+            console.log('Login response:', data);
+            if(data.success){
+                if(data.has_preferences) {
+                    window.location.href='home.html';
+                } else {
+                    window.location.href='preferences.html';
+                }
+            } else {
+                alert('Login failed: ' + data.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login';
+            }
+        })
+        .catch(function(err) { 
+            console.error('Login error:', err); 
+            alert('Error logging in: ' + err.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Login';
+        });
+    });
+</script>
+</body>
+</html>
